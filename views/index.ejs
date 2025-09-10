@@ -6,155 +6,163 @@
   <title>ข้อมูลสภาพอากาศ</title>
   <link rel="stylesheet" href="/css/main.css">
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: #1c1e21;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    h1 {
-      color: #333;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .search-container {
-      margin-bottom: 30px;
-      text-align: center;
-    }
+    /* --- Search Bar --- */
     .search-input {
       padding: 12px 15px;
       font-size: 1em;
       border-radius: 20px;
-      border: 1px solid #ddd;
+      border: 1px solid #4a5568;
       width: 60%;
       max-width: 400px;
       transition: box-shadow 0.2s;
+      background-color: #2d3748;
+      color: #e2e8f0;
     }
     .search-input:focus {
       outline: none;
-      box-shadow: 0 0 0 3px rgba(21, 156, 228, 0.3);
+      border-color: #63b3ed;
+      box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.4);
     }
     .search-button {
       padding: 12px 20px;
       border-radius: 20px;
       border: none;
-      background-color: #1877f2;
+      background-color: #63b3ed;
       color: white;
       font-size: 1em;
       cursor: pointer;
       margin-left: 10px;
+      transition: background-color 0.2s;
     }
+    .search-button:hover {
+      background-color: #4299e1;
+    }
+
+    /* --- General Card Style --- */
+    .card {
+      background: #2d3748;
+      padding: 25px;
+      margin-bottom: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      border: 1px solid #4a5568;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    /* --- Section Headers --- */
+    h2 {
+      color: #63b3ed;
+      border-bottom: 2px solid #4a5568;
+      padding-bottom: 10px;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+
+    /* --- Sensor Data Section --- */
+    .sensor-card {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      text-align: center;
+      padding: 30px;
+    }
+    .sensor-item {
+      font-size: 1.5em;
+    }
+    .sensor-item .icon {
+      font-size: 2.5em;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .sensor-item .label {
+      font-size: 0.7em;
+      color: #a0aec0;
+    }
+    .sensor-item .value {
+      font-weight: bold;
+      color: #fff;
+    }
+    .sensor-timestamp {
+      width: 100%;
+      text-align: center;
+      margin-top: 20px;
+      color: #a0aec0;
+      font-size: 0.9em;
+    }
+
+    /* --- Weather Grid --- */
+    .weather-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    /* --- Weather Card --- */
     .card-header {
       display: flex;
       align-items: center;
       gap: 15px;
       margin-bottom: 10px;
     }
-    .card {
-      background: #fff;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s ease-in-out;
-    }
-    .card:hover {
-        transform: translateY(-5px);
-    }
     .card h3 {
       margin: 0;
-      font-size: 1.4em;
+      font-size: 1.5em;
+      color: #e2e8f0;
     }
     .card p {
       margin: 8px 0;
       font-size: 1.1em;
-      color: #333;
+      color: #cbd5e0;
     }
     .card small {
-      color: #606770;
+      color: #a0aec0;
       font-size: 0.9em;
       display: block;
       margin-top: 15px;
-    }
-    .sensor-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    .sensor-table th, .sensor-table td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: left;
-    }
-    .sensor-table th {
-      background-color: #f2f2f2;
-    }
-    .main-layout {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      align-items: flex-start; /* ให้ card ด้านบนสุดชิดกัน */
-    }
-    .sensor-column {
-      flex: 1;
-      min-width: 320px; /* ความกว้างขั้นต่ำก่อนจะขึ้นบรรทัดใหม่ */
-    }
-    .weather-column {
-      flex: 2;
-      min-width: 320px;
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <h1>🌤️ Weather Dashboard</h1>
     <div class="search-container">
       <form action="/" method="GET">
         <input type="text" name="q" placeholder="ค้นหาจังหวัด..." class="search-input" value="<%= typeof query !== 'undefined' ? query : '' %>">
         <button type="submit" class="search-button">🔍 ค้นหา</button>
       </form>
     </div>
-    <h1>🌤️ ข้อมูลสภาพอากาศล่าสุด</h1>
 
-    <div class="main-layout">
-      <!-- คอลัมน์ซ้าย: ข้อมูล Sensor -->
-      <div class="sensor-column">
-        <div class="card">
-          <h2>🌡️ ข้อมูลจาก Sensor ล่าสุด</h2>
-          <table class="sensor-table">
-            <thead>
-              <tr>
-                <th>อุณหภูมิ</th>
-                <th>ความชื้น</th>
-                <th>เวลา</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (sensorData && sensorData.length > 0) { %>
-                <% sensorData.forEach(sensor => { %>
-                  <tr>
-                    <td><%= sensor.temperature.toFixed(2) %> °C</td>
-                    <td><%= sensor.humidity %> %</td>
-                    <td><%= sensor.formattedTimestamp %></td>
-                  </tr>
-                <% }) %>
-              <% } else { %>
-                <tr>
-                  <td colspan="3" style="text-align: center;">ไม่พบข้อมูล Sensor</td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
+    <!-- Sensor Data Section -->
+    <% if (sensorData && sensorData.length > 0) { %>
+      <div class="card sensor-card">
+        <div class="sensor-item">
+          <span class="icon">🌡️</span>
+          <span class="label">อุณหภูมิ</span>
+          <span class="value"><%= sensorData[0].temperature.toFixed(2) %> °C</span>
+        </div>
+        <div class="sensor-item">
+          <span class="icon">💧</span>
+          <span class="label">ความชื้น</span>
+          <span class="value"><%= sensorData[0].humidity %> %</span>
+        </div>
+        <div class="sensor-timestamp">
+          ข้อมูลจาก Sensor ล่าสุดเมื่อ: <%= sensorData[0].formattedTimestamp %>
         </div>
       </div>
+    <% } %>
 
-      <!-- คอลัมน์ขวา: ข้อมูลสภาพอากาศ -->
-      <div class="weather-column">
-        <% regions.forEach(region => { %>
-          <h2><%= region._id %></h2>
+    <!-- Weather Data Section -->
+    <% regions.forEach(region => { %>
+      <% if (region.provinces.length > 0) { %>
+        <h2><%= region._id %></h2>
+        <div class="weather-grid">
           <% region.provinces.forEach(p => { %>
           <div class="card">
             <div class="card-header">
@@ -167,9 +175,19 @@
             <small>บันทึกเมื่อ: <%= p.formattedTimestamp %></small>
           </div>
           <% }) %>
-        <% }) %>
+        </div>
+      <% } %>
+    <% }) %>
+
+    <% if (regions.length === 0 && (!query || query.trim() === '')) { %>
+      <div class="card" style="text-align: center;">
+        <p>ไม่พบข้อมูลสภาพอากาศ</p>
       </div>
-    </div>
+    <% } else if (regions.length === 0 && query && query.trim() !== '') { %>
+      <div class="card" style="text-align: center;">
+        <p>ไม่พบข้อมูลสำหรับจังหวัด "<%= query %>"</p>
+      </div>
+    <% } %>
   </div>
 </body>
 </html>
