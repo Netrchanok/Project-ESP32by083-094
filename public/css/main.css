@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1200px; /* Increased width for new layout */
   margin: 0 auto;
 }
 

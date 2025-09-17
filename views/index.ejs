@@ -25,6 +25,13 @@
     .sensor-table tr:last-child td { border-bottom: none; }
     .sensor-table tr:nth-child(even) { background-color: rgba(0, 0, 0, 0.02); }
 
+    /* --- Weather Grid --- */
+    .weather-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
     /* --- Weather Card --- */
     .card-header {
       display: flex;
