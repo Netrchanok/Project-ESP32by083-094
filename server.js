@@ -9,6 +9,13 @@ const app = express();
 const PORT = process.env.PORT || 3000; // ใช้ Port จาก Render หรือ 3000 ถ้าเป็น local
 
 const MONGO_URI = process.env.MONGO_URI;
+
+// เพิ่มการตรวจสอบ MONGO_URI
+if (!MONGO_URI || !MONGO_URI.startsWith('mongodb')) {
+  console.error("❌ Fatal: MONGO_URI is not defined in your .env file.");
+  console.error("   Please ensure your .env file contains a valid MONGO_URI that starts with 'mongodb://' or 'mongodb+srv://'");
+  process.exit(1); // ออกจากโปรแกรมทันทีถ้าไม่มี MONGO_URI
+}
 const client = new MongoClient(MONGO_URI);
 let db; // สร้างตัวแปร db ไว้ข้างนอก
 
@@ -28,6 +35,7 @@ async function connectDB() {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json()); // เพิ่ม middleware สำหรับอ่าน JSON body ที่ ESP32 ส่งมา
 
 app.get('/', async (req, res) => {
   try {
@@ -76,12 +84,11 @@ app.get('/', async (req, res) => {
     });
 
     // --- เพิ่มส่วนนี้: ดึงข้อมูลจาก Sensor ---
-    const sensorDb = client.db('test');
-    const sensorCollection = sensorDb.collection('sensors');
+    const sensorCollection = db.collection('sensors'); // ใช้ db object ที่เชื่อมต่อไว้แล้ว
     const sensorData = await sensorCollection
       .find({})
       .sort({ timestamp: -1 }) // ดึงข้อมูลล่าสุดก่อน
-      .limit(10) // แสดงผล 10 รายการล่าสุด
+      .limit(5) // ดึงข้อมูล 5 รายการล่าสุด
       .toArray();
 
     // แปลงเวลา timestamp ของ sensor
@@ -94,6 +101,35 @@ app.get('/', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("เกิดข้อผิดพลาด");
+  }
+});
+
+// --- เพิ่ม Route ใหม่สำหรับรับข้อมูลจาก ESP32 ---
+app.post('/api/sensor', async (req, res) => {
+  try {
+    // ดึงค่า temperature และ humidity จาก request body ที่ ESP32 ส่งมา
+    const { temperature, humidity } = req.body;
+
+    // ตรวจสอบว่ามีข้อมูลส่งมาหรือไม่
+    if (temperature === undefined || humidity === undefined) {
+      return res.status(400).json({ message: 'Bad Request: Missing temperature or humidity.' });
+    }
+
+    const sensorCollection = db.collection('sensors'); // แก้ไขให้ใช้ db object ที่เชื่อมต่อกับ 'weatherdb' อยู่แล้ว
+
+    // สร้าง document ที่จะบันทึกลง DB
+    const newSensorRecord = {
+      temperature: Number(temperature),
+      humidity: Number(humidity),
+      timestamp: new Date() // ใช้เวลาปัจจุบันของ Server
+    };
+
+    await sensorCollection.insertOne(newSensorRecord);
+    console.log('✅ Received and saved sensor data:', newSensorRecord);
+    res.status(201).json({ message: 'Sensor data saved successfully.' });
+  } catch (err) {
+    console.error('❌ Error saving sensor data:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 

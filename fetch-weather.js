@@ -15,7 +15,7 @@ async function fetchAndStoreWeather() {
   const client = new MongoClient(MONGO_URI);
   let successfulFetches = 0;
 
-  try {
+  try {fetchAndStoreWeather
     await client.connect();
     console.log('✅ Connected to MongoDB');
     const db = client.db('weatherdb');

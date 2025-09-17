@@ -1,23 +1,22 @@
 body {
   /* ไล่เฉดสีจากฟ้าอ่อน (#87CEEB) ด้านบน ไปเป็นสีขาว (#FFFFFF) ด้านล่าง */
   background-image: linear-gradient(to bottom, #87CEEB, #ffffff);
-  background-repeat: no-repeat; /* ไม่ต้องแสดงภาพพื้นหลังซ้ำ */
-  background-attachment: fixed; /* ทำให้พื้นหลังคงที่เมื่อเลื่อนหน้าเว็บ */
-  min-height: 100vh; /* กำหนดความสูงขั้นต่ำให้เต็มหน้าจอ */
-}
-
-body {
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #1c1e21;
+  color: #1c1e21; /* สีข้อความหลักเป็นสีเข้มเพื่อให้ตัดกับพื้นหลังสีอ่อน */
   margin: 0;
   padding: 20px;
 }
+
 .container {
   max-width: 800px;
   margin: 0 auto;
 }
+
 h1 {
-  color: #333;
+  color: #333; /* สีหัวข้อหลัก */
   text-align: center;
   margin-bottom: 30px;
 }

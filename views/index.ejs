@@ -3,71 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ข้อมูลสภาพอากาศ</title>
+  <title>Weather Dashboard</title>
   <link rel="stylesheet" href="/css/main.css">
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: #1c1e21;
-      margin: 0;
-      padding: 20px;
+    /* --- Sensor Table Style --- */
+    .sensor-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
     }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    h1 {
-      color: #333;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .search-container {
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    .search-input {
+    .sensor-table th, .sensor-table td {
       padding: 12px 15px;
-      font-size: 1em;
-      border-radius: 20px;
-      border: 1px solid #ddd;
-      width: 60%;
-      max-width: 400px;
-      transition: box-shadow 0.2s;
+      text-align: left;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
-    .search-input:focus {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(21, 156, 228, 0.3);
+    .sensor-table th {
+      background-color: rgba(0, 0, 0, 0.03);
+      font-weight: bold;
+      color: #333;
     }
-    .search-button {
-      padding: 12px 20px;
-      border-radius: 20px;
-      border: none;
-      background-color: #1877f2;
-      color: white;
-      font-size: 1em;
-      cursor: pointer;
-      margin-left: 10px;
-    }
+    .sensor-table tr:last-child td { border-bottom: none; }
+    .sensor-table tr:nth-child(even) { background-color: rgba(0, 0, 0, 0.02); }
+
+    /* --- Weather Card --- */
     .card-header {
       display: flex;
       align-items: center;
       gap: 15px;
-      margin-bottom: 10px;
-    }
-    .card {
-      background: #fff;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s ease-in-out;
-    }
-    .card:hover {
-        transform: translateY(-5px);
+      margin-bottom: 15px;
     }
     .card h3 {
       margin: 0;
-      font-size: 1.4em;
+      font-size: 1.5em;
+      color: #2c3e50;
     }
     .card p {
       margin: 8px 0;
@@ -75,86 +43,58 @@
       color: #333;
     }
     .card small {
-      color: #606770;
+      color: #666;
       font-size: 0.9em;
       display: block;
       margin-top: 15px;
-    }
-    .sensor-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    .sensor-table th, .sensor-table td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: left;
-    }
-    .sensor-table th {
-      background-color: #f2f2f2;
-    }
-    .main-layout {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      align-items: flex-start; /* ให้ card ด้านบนสุดชิดกัน */
-    }
-    .sensor-column {
-      flex: 1;
-      min-width: 320px; /* ความกว้างขั้นต่ำก่อนจะขึ้นบรรทัดใหม่ */
-    }
-    .weather-column {
-      flex: 2;
-      min-width: 320px;
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <h1>🌤️ Weather Dashboard</h1>
     <div class="search-container">
       <form action="/" method="GET">
         <input type="text" name="q" placeholder="ค้นหาจังหวัด..." class="search-input" value="<%= typeof query !== 'undefined' ? query : '' %>">
         <button type="submit" class="search-button">🔍 ค้นหา</button>
       </form>
     </div>
-    <h1>🌤️ ข้อมูลสภาพอากาศล่าสุด</h1>
 
-    <div class="main-layout">
-      <!-- คอลัมน์ซ้าย: ข้อมูล Sensor -->
-      <div class="sensor-column">
-        <div class="card">
-          <h2>🌡️ ข้อมูลจาก Sensor ล่าสุด</h2>
-          <table class="sensor-table">
-            <thead>
+    <!-- Sensor Data Section -->
+    <% if (typeof sensorData !== 'undefined' && sensorData.length > 0) { %>
+      <div class="card">
+        <h3>ข้อมูลย้อนหลังจากเซ็นเซอร์ (ESP32)</h3>
+        <table class="sensor-table">
+          <thead>
+            <tr>
+              <th>เวลาที่บันทึก</th>
+              <th>🌡️ อุณหภูมิ (°C)</th>
+              <th>💧 ความชื้น (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% sensorData.forEach(sensor => { %>
               <tr>
-                <th>อุณหภูมิ</th>
-                <th>ความชื้น</th>
-                <th>เวลา</th>
+                <td><%= sensor.formattedTimestamp %></td>
+                <td><%= sensor.temperature.toFixed(2) %></td>
+                <td><%= sensor.humidity.toFixed(2) %></td>
               </tr>
-            </thead>
-            <tbody>
-              <% if (sensorData && sensorData.length > 0) { %>
-                <% sensorData.forEach(sensor => { %>
-                  <tr>
-                    <td><%= sensor.temperature.toFixed(2) %> °C</td>
-                    <td><%= sensor.humidity %> %</td>
-                    <td><%= sensor.formattedTimestamp %></td>
-                  </tr>
-                <% }) %>
-              <% } else { %>
-                <tr>
-                  <td colspan="3" style="text-align: center;">ไม่พบข้อมูล Sensor</td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
-        </div>
+            <% }); %>
+          </tbody>
+        </table>
       </div>
+    <% } else { %>
+      <div class="card" style="text-align: center;">
+        <h3>ข้อมูลจากเซ็นเซอร์ (ESP32)</h3>
+        <p>ยังไม่มีข้อมูลจากเซ็นเซอร์ในฐานข้อมูล</p>
+      </div>
+    <% } %>
 
-      <!-- คอลัมน์ขวา: ข้อมูลสภาพอากาศ -->
-      <div class="weather-column">
-        <% regions.forEach(region => { %>
-          <h2><%= region._id %></h2>
+    <!-- Weather Data Section -->
+    <% regions.forEach(region => { %>
+      <% if (typeof region.provinces !== 'undefined' && region.provinces.length > 0) { %>
+        <h2><%= region._id %></h2>
+        <div class="weather-grid">
           <% region.provinces.forEach(p => { %>
           <div class="card">
             <div class="card-header">
@@ -167,9 +107,19 @@
             <small>บันทึกเมื่อ: <%= p.formattedTimestamp %></small>
           </div>
           <% }) %>
-        <% }) %>
+        </div>
+      <% } %>
+    <% }) %>
+
+    <% if (typeof regions !== 'undefined' && regions.length === 0 && (!query || query.trim() === '')) { %>
+      <div class="card" style="text-align: center;">
+        <p>ไม่พบข้อมูลสภาพอากาศ</p>
       </div>
-    </div>
+    <% } else if (typeof regions !== 'undefined' && regions.length === 0 && query && query.trim() !== '') { %>
+      <div class="card" style="text-align: center;">
+        <p>ไม่พบข้อมูลสำหรับจังหวัด "<%= query %>"</p>
+      </div>
+    <% } %>
   </div>
 </body>
 </html>
